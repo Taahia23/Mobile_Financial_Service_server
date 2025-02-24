@@ -14,5 +14,10 @@ app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
+// Routes (To be added later)
+app.get("/", (req,res) => {
+    res.send("MFS API is Running...");
+});
+
 
 app.listen(PORT,() => console.log(`MFS server is running on port ${PORT}`));
