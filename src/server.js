@@ -22,5 +22,4 @@ app.get("/", (req,res) => {
 
 app.use("/api/auth", authRoutes);
 
-
 app.listen(PORT,() => console.log(`MFS server is running on port ${PORT}`));
