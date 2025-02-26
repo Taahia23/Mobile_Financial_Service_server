@@ -97,6 +97,19 @@ const cashOut = async (req, res) => {
         const admin = await User.findOne({ accountType: "Admin" });
         if (admin) admin.balance += (0.5 / 100) * amount;
 
+        const transaction = new Transaction({
+            senderId: user._id,
+            receiverId: agent._id,
+            amount,
+            type: "Cash-Out",
+            transactionFee: fee,
+            transactionId: uuidv4(),
+        });
+
+        await user.save();
+        await agent.save();
+        if (admin) await admin.save();
+        await transaction.save();
        
 
         res.json({ message: "Cash-out successful", transaction });
