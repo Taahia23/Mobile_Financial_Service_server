@@ -18,15 +18,19 @@ const sendMoney = async (req, res) => {
         let transactionFee = 0;
         if (amount > 100) transactionFee = 5;
 
-        if (sender.balance < amount + transactionFee) return res.status(400).json({ message: "Insufficient balance" });
+        if (sender.balance < amount + transactionFee) {
+            return res.status(400).json({ message: "Insufficient balance" });
+        }
 
-        sender.balance -= amount + transactionFee;
+        sender.balance -= (amount + transactionFee);
+
         receiver.balance += amount;
 
+        
         const admin = await User.findOne({ accountType: "Admin" });
-        if (admin) admin.balance += 5;
+        if (admin) admin.balance += transactionFee;
 
-        // Save transaction
+        
         const transaction = new Transaction({
             senderId: sender._id,
             receiverId: receiver._id,
@@ -43,24 +47,42 @@ const sendMoney = async (req, res) => {
 
         res.json({ message: "Transaction successful", transaction });
     } catch (error) {
+        console.error("Send Money Error:", error);
         res.status(500).json({ message: error.message });
     }
 };
+
 
 // Cash-In (User to Agent)
 const cashIn = async (req, res) => {
     try {
         const { agentMobile, amount } = req.body;
+
+        console.log("Received Request - Agent Mobile:", agentMobile);
+        console.log("Received Request - Amount:", amount);
+
+        if (!agentMobile || !amount) {
+            return res.status(400).json({ message: "Agent mobile and amount are required" });
+        }
+
         const agent = await User.findOne({ mobile: agentMobile, accountType: "Agent" });
 
-        if (!agent) return res.status(400).json({ message: "Agent not found" });
+        if (!agent) {
+            console.log("Agent Not Found!");
+            return res.status(400).json({ message: "Agent not found" });
+        }
 
         const user = await User.findById(req.user.id);
-        if (!user) return res.status(400).json({ message: "User not found" });
+        if (!user) {
+            console.log("User Not Found!");
+            return res.status(400).json({ message: "User not found" });
+        }
+
+        console.log("Found Agent:", agent.mobile);
+        console.log("Found User:", user.email);
 
         user.balance += amount;
 
-        // Save transaction
         const transaction = new Transaction({
             senderId: agent._id,
             receiverId: user._id,
@@ -75,9 +97,11 @@ const cashIn = async (req, res) => {
 
         res.json({ message: "Cash-in successful", transaction });
     } catch (error) {
+        console.error("Cash-In Error:", error);
         res.status(500).json({ message: error.message });
     }
 };
+
 
 // Cash-Out (User to Agent)
 const cashOut = async (req, res) => {
