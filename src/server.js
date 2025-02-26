@@ -4,6 +4,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
+const transactionRoutes = require("./routes/transactionRoutes");
 
 
 const app = express();
@@ -21,5 +22,7 @@ app.get("/", (req,res) => {
 });
 
 app.use("/api/auth", authRoutes);
+
+app.use("/api/transactions", transactionRoutes);
 
 app.listen(PORT,() => console.log(`MFS server is running on port ${PORT}`));
