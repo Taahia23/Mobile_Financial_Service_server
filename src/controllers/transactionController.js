@@ -2,7 +2,6 @@ const User = require("../models/User");
 const Transaction = require("../models/Transaction");
 const { v4: uuidv4 } = require("uuid");
 
-
 // Send Money
 const sendMoney = async (req, res) => {
     try {
@@ -27,6 +26,7 @@ const sendMoney = async (req, res) => {
         const admin = await User.findOne({ accountType: "Admin" });
         if (admin) admin.balance += 5;
 
+        // Save transaction
         const transaction = new Transaction({
             senderId: sender._id,
             receiverId: receiver._id,
@@ -46,7 +46,6 @@ const sendMoney = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
 
 // Cash-In (User to Agent)
 const cashIn = async (req, res) => {
@@ -80,7 +79,6 @@ const cashIn = async (req, res) => {
     }
 };
 
-
 // Cash-Out (User to Agent)
 const cashOut = async (req, res) => {
     try {
@@ -102,6 +100,7 @@ const cashOut = async (req, res) => {
         const admin = await User.findOne({ accountType: "Admin" });
         if (admin) admin.balance += (0.5 / 100) * amount;
 
+        // Save transaction
         const transaction = new Transaction({
             senderId: user._id,
             receiverId: agent._id,
@@ -115,7 +114,6 @@ const cashOut = async (req, res) => {
         await agent.save();
         if (admin) await admin.save();
         await transaction.save();
-       
 
         res.json({ message: "Cash-out successful", transaction });
     } catch (error) {
