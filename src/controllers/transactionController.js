@@ -41,3 +41,25 @@ const sendMoney = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+
+// Cash-In (User to Agent)
+const cashIn = async (req, res) => {
+    try {
+        const { agentMobile, amount } = req.body;
+        const agent = await User.findOne({ mobile: agentMobile, accountType: "Agent" });
+
+        if (!agent) return res.status(400).json({ message: "Agent not found" });
+
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(400).json({ message: "User not found" });
+
+        // Perform transaction
+        user.balance += amount;
+
+
+        res.json({ message: "Cash-in successful", transaction });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
