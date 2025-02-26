@@ -5,6 +5,7 @@ const authenticateUser = require("../middlewares/authMiddleware");
 const router = express.Router();
 
 router.post("/send-money", authenticateUser, sendMoney);
-
+router.post("/cash-in", authenticateUser, cashIn);
+router.post("/cash-out", authenticateUser, cashOut);
 
 module.exports = router;
