@@ -74,3 +74,35 @@ const cashIn = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+
+// Cash-Out (User to Agent)
+const cashOut = async (req, res) => {
+    try {
+        const { agentMobile, amount } = req.body;
+        const user = await User.findById(req.user.id);
+        const agent = await User.findOne({ mobile: agentMobile, accountType: "Agent" });
+
+        if (!agent) return res.status(400).json({ message: "Agent not found" });
+
+        const fee = (1.5 / 100) * amount;
+        if (user.balance < amount + fee) return res.status(400).json({ message: "Insufficient balance" });
+
+        user.balance -= amount + fee;
+        agent.balance += amount;
+
+        const agentEarnings = (1 / 100) * amount;
+        agent.balance += agentEarnings;
+
+        const admin = await User.findOne({ accountType: "Admin" });
+        if (admin) admin.balance += (0.5 / 100) * amount;
+
+       
+
+        res.json({ message: "Cash-out successful", transaction });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+module.exports = { sendMoney, cashIn, cashOut };
