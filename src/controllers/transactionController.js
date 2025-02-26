@@ -54,9 +54,20 @@ const cashIn = async (req, res) => {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(400).json({ message: "User not found" });
 
-        // Perform transaction
         user.balance += amount;
 
+        // Save transaction
+        const transaction = new Transaction({
+            senderId: agent._id,
+            receiverId: user._id,
+            amount,
+            type: "Cash-In",
+            transactionFee: 0,
+            transactionId: uuidv4(),
+        });
+
+        await user.save();
+        await transaction.save();
 
         res.json({ message: "Cash-in successful", transaction });
     } catch (error) {
